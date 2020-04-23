@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Flappy_Bird
 {
-
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
