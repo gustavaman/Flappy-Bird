@@ -7,6 +7,7 @@ namespace Flappy_Bird
     public class Game1 : Game
     {
         //Hej Johan
+        //hej Gustav
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
