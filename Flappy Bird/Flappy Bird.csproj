@@ -41,7 +41,12 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="models\CyberTruck.cs" />
+    <Compile Include="models\MarsRock.cs" />
+    <Compile Include="models\Meteor.cs" />
+    <Compile Include="models\Vetor2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -53,6 +58,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Car.png" />
+    <Content Include="Content\bakgrund.PNG" />
+    <Content Include="Content\MarsRock.png" />
+    <Content Include="Content\meteor.png" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
