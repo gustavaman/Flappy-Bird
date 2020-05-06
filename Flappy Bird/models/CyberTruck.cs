@@ -10,15 +10,12 @@ namespace Flappy_Bird.models
     class CyberTruck
     {
         public Vector2 pos { get; set; }
-        public int hp = 100;
-        public Rectangle rec { get; set; }
-
-
-        public CyberTruck()
+        public int hp;
+        
+        public CyberTruck(Vector2 pos, int hp)
         {
-            pos = new Vector2(200, 304);
-            rec = new Rectangle(200, 304, 120, 75);
+            this.pos = pos;
+            this.hp = hp;
         }
-
     }
 }

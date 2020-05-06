@@ -8,7 +8,6 @@ namespace Flappy_Bird
 {
     class Constants
     {
-
         public static int resolution_X = 1214;
         public static int resolution_Y = 396;
     }
