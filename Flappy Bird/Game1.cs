@@ -12,7 +12,7 @@ namespace Flappy_Bird
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Texture2D car, meteor, rock, background, background2;
+        Texture2D meteor, rock, background, background2;
         CyberTruck player;
         Vector2 back_pos, back2_pos;
        
@@ -28,7 +28,7 @@ namespace Flappy_Bird
 
         protected override void Initialize()
         {
-            player = new CyberTruck(new Vector2(200, 0), 100, this);
+            player = new CyberTruck(new Vector2(200, 290), 100, this);
             Components.Add(player);
             base.Initialize();
 

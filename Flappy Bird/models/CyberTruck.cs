@@ -14,76 +14,54 @@ namespace Flappy_Bird.models
         Vector2 pos;
         Vector2 vel;
         public int hp;
-        public bool isjump = true;
+        public bool isjump = false;
         Texture2D car;
         public Rectangle rec { get; set; }
-
         
-
-
-
         public CyberTruck(Vector2 pos, int hp, Game game): base(game)
         {
-            car = Game.Content.Load<Texture2D>("bil");
+            car = Game.Content.Load<Texture2D>("car");
             this.pos = pos;
-            this.hp = hp;
-           
-            vel.Y = 0f;
+            this.hp = hp;         
         }
 
         public override void Update(GameTime gameTime)
         {
-
-            
-
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            //Om båda rörelsetangenterna är nedtryckta är hastigheten 0. Detta för att inte en tangent inte ska överskrida den andra.
+            if (Keyboard.GetState().IsKeyDown(Keys.Right) && Keyboard.GetState().IsKeyDown(Keys.Left))
+                vel.X = 0;
+            else if (Keyboard.GetState().IsKeyDown(Keys.Right) && pos.X < 1089)
                 vel.X = 7f;
-            else if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            else if (Keyboard.GetState().IsKeyDown(Keys.Left) && pos.X > 4)
                 vel.X = -7f;
             else
                 vel.X = 0f;
-
-            if (pos.X <= 0)
-            {
-                vel.X = 0;
-                pos.X = 1;
-            }
-                
-
-            if (pos.X >= 1094)
-            {
-                vel.X = 0;
-                pos.X = 1093;
-            }
-                
-
+            
             if (Keyboard.GetState().IsKeyDown(Keys.Up) && isjump == false)
             {
-                pos.Y -= 1f;
                 vel.Y = -7.5f;
                 isjump = true;
             }
 
+            pos += vel;
+
             //Gravitation
             if (isjump == true)
                 vel.Y += 0.15f;
-             
-            //Marklogik
-            if (pos.Y >= 290)
-                isjump = false;
 
             //stanna y hastighet
             if (isjump == false)
                 vel.Y = 0f;
 
-
-
-
-
-            pos += vel;
-
-
+            /*Marklogik.
+            pos.Y återställs så att bilen inte landar under 290 pixlar vilket kunde ske pga att hastigheten inte var en faktor av 290.
+            Detta kunde leda till att bilen kunde åka uppåt en liten bit utan att hoppa helt.*/
+            if (pos.Y >= 290)
+            {
+                pos.Y = 290;
+                isjump = false;
+            }
+                        
             rec = new Rectangle((int)pos.X, (int)pos.Y,120,120);
 
             base.Update(gameTime);

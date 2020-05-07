@@ -59,7 +59,7 @@
   <ItemGroup>
     <Content Include="Content\bakgrund2.png" />
     <Content Include="Content\bakgrund.PNG" />
-    <Content Include="Content\bil.png" />
+    <Content Include="Content\car.png" />
     <Content Include="Content\MarsRock.png" />
     <Content Include="Content\meteor.png" />
     <Content Include="Icon.ico" />
