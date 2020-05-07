@@ -22,22 +22,24 @@ namespace Flappy_Bird
 
             graphics.PreferredBackBufferHeight = 396;
             graphics.PreferredBackBufferWidth = 1214;
-
+          
             Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()
         {
+            player = new CyberTruck(new Vector2(200, 0), 100, this);
+            Components.Add(player);
             base.Initialize();
 
-            player = new CyberTruck(new Vector2(200, 290), 100);
+            
         }
         
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            car = Content.Load<Texture2D>("bil");
+            
             meteor = Content.Load<Texture2D>("meteor");
             rock = Content.Load<Texture2D>("MarsRock");
             background = Content.Load<Texture2D>("bakgrund");
@@ -56,11 +58,8 @@ namespace Flappy_Bird
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            //Rörelse i sidled som stoppas vid skärmens kanter.
-            if (Keyboard.GetState().IsKeyDown(Keys.Right) && player.pos.X < 1094)
-                player.pos = new Vector2(player.pos.X + 7, player.pos.Y);
-            if (Keyboard.GetState().IsKeyDown(Keys.Left) && player.pos.X > 0)
-                player.pos = new Vector2(player.pos.X - 7, player.pos.Y);
+          
+           
                         
             // back2_pos.X + 1214 används eftersom det annars bildas ett svart streck i skarven mellan bakgrunderna. Strecket uppstår pga att bakgrundens hastighet inte är en faktor av dess bredd.
             if (back_pos.X <= -background.Width)
@@ -84,8 +83,8 @@ namespace Flappy_Bird
             spriteBatch.Draw(background, back_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
 
             spriteBatch.Draw(background2, back2_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
-            
-            spriteBatch.Draw(car, new Rectangle((int)player.pos.X, (int)player.pos.Y, 120, 120), Color.White);
+
+            player.Draw(spriteBatch);
 
             spriteBatch.End();
 
