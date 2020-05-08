@@ -17,7 +17,7 @@ namespace Flappy_Bird.models
         public bool isjump = false;
         Texture2D car;
         public Rectangle rec { get; set; }
-        
+
         public CyberTruck(Vector2 pos, int hp, Game game): base(game)
         {
             car = Game.Content.Load<Texture2D>("car");
@@ -42,7 +42,7 @@ namespace Flappy_Bird.models
                 vel.Y = -7.5f;
                 isjump = true;
             }
-
+                        
             pos += vel;
 
             //Gravitation
@@ -61,35 +61,25 @@ namespace Flappy_Bird.models
                 pos.Y = 290;
                 isjump = false;
             }
-                        
+
             rec = new Rectangle((int)pos.X, (int)pos.Y,120,120);
 
             base.Update(gameTime);
         }
 
         public override void Initialize()
-        {
-          
+        {          
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-
-           
-
-
-
-
             base.LoadContent();
-
         }
 
         public void Draw(SpriteBatch spritebatch)
         {
-          
-            spritebatch.Draw(car, rec,Color.White);
-           
+            spritebatch.Draw(car, rec, Color.White);           
         }
     }
 }

@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
 
 namespace Flappy_Bird
 {
@@ -12,43 +14,44 @@ namespace Flappy_Bird
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Texture2D meteor, rock, background, background2;
+        Texture2D meteor, background, background2;
+        List<MarsRock> rocks;
         CyberTruck player;
         Vector2 back_pos, back2_pos;
-       
+        Random random;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
 
             graphics.PreferredBackBufferHeight = 396;
             graphics.PreferredBackBufferWidth = 1214;
-          
+
+            random = new Random();
+
             Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()
         {
             player = new CyberTruck(new Vector2(200, 290), 100, this);
+            rocks = new List<MarsRock>();
             Components.Add(player);
             base.Initialize();
-
-            
         }
-        
+
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            
             meteor = Content.Load<Texture2D>("meteor");
-            rock = Content.Load<Texture2D>("MarsRock");
             background = Content.Load<Texture2D>("bakgrund");
             background2 = Content.Load<Texture2D>("bakgrund2");
-                        
+
             back_pos = new Vector2(0, 0);
             back2_pos = new Vector2(background.Width, 0);
         }
-        
+
         protected override void UnloadContent()
         {
         }
@@ -58,9 +61,6 @@ namespace Flappy_Bird
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-          
-           
-                        
             // back2_pos.X + 1214 används eftersom det annars bildas ett svart streck i skarven mellan bakgrunderna. Strecket uppstår pga att bakgrundens hastighet inte är en faktor av dess bredd.
             if (back_pos.X <= -background.Width)
                 back_pos.X = back2_pos.X + 1214;
@@ -68,12 +68,24 @@ namespace Flappy_Bird
             if (back2_pos.X <= -background.Width)
                 back2_pos.X = back_pos.X + 1214;
 
-            back_pos.X -= 4;
-            back2_pos.X -= 4;
-            
+            back_pos.X -= 6;
+            back2_pos.X -= 6;
+
+            //Tar bort stenar när de hamnat utanför bild till vänster.
+            for (int i = 0; i < rocks.Count; i++)
+                if (rocks[i].pos.X <= -120)
+                    rocks.RemoveAt(i);
+
+            //Det finns alltid 3 stenar, även om alla inte alltid är på bilden. När en ny sten skapas görs en Component.Add för den stenen.
+            while (rocks.Count < 3)
+            {
+                rocks.Add(new MarsRock(new Vector2(random.Next(1214, 3000), 270), this));
+                Components.Add(rocks[rocks.Count - 1]);
+            }
+                        
             base.Update(gameTime);
         }
-        
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
@@ -83,8 +95,11 @@ namespace Flappy_Bird
             spriteBatch.Draw(background, back_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
 
             spriteBatch.Draw(background2, back2_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
-
+            
             player.Draw(spriteBatch);
+
+            for (int i = 0; i < rocks.Count; i++)
+                rocks[i].Draw(spriteBatch);
 
             spriteBatch.End();
 
