@@ -14,11 +14,14 @@ namespace Flappy_Bird
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Texture2D meteor, background, background2;
+        Texture2D meteor, background, background2, hitbox;
         List<MarsRock> rocks;
+        List<Meteor> meteors;
         CyberTruck player;
         Vector2 back_pos, back2_pos;
+        
         Random random;
+
 
         public Game1()
         {
@@ -36,8 +39,12 @@ namespace Flappy_Bird
         {
             player = new CyberTruck(new Vector2(200, 290), 100, this);
             rocks = new List<MarsRock>();
+            meteors = new List<Meteor>();
+            hitbox = new Texture2D(GraphicsDevice, 1, 1);
+            hitbox.SetData(new Color[] { Color.Red });
             Components.Add(player);
             base.Initialize();
+
         }
 
         protected override void LoadContent()
@@ -71,18 +78,9 @@ namespace Flappy_Bird
             back_pos.X -= 6;
             back2_pos.X -= 6;
 
-            //Tar bort stenar när de hamnat utanför bild till vänster.
-            for (int i = 0; i < rocks.Count; i++)
-                if (rocks[i].pos.X <= -120)
-                    rocks.RemoveAt(i);
+            //Metod som spawnar objekt c:
+            ObjectSpawner();
 
-            //Det finns alltid 3 stenar, även om alla inte alltid är på bilden. När en ny sten skapas görs en Component.Add för den stenen.
-            while (rocks.Count < 3)
-            {
-                rocks.Add(new MarsRock(new Vector2(random.Next(1214, 3000), 270), this));
-                Components.Add(rocks[rocks.Count - 1]);
-            }
-                        
             base.Update(gameTime);
         }
 
@@ -99,11 +97,51 @@ namespace Flappy_Bird
             player.Draw(spriteBatch);
 
             for (int i = 0; i < rocks.Count; i++)
+            {
                 rocks[i].Draw(spriteBatch);
+                spriteBatch.Draw(hitbox, rocks[i].rec, Color.Red);
+            }
+                
+
+            for (int i = 0; i < meteors.Count; i++)
+            {
+                meteors[i].Draw(spriteBatch);
+                spriteBatch.Draw(hitbox, meteors[i].rec, Color.Red);
+            }
+                
 
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+
+
+        public void ObjectSpawner()
+        {
+            //Tar bort stenar när de hamnat utanför bild till vänster.
+            for (int i = 0; i < rocks.Count; i++)
+                if (rocks[i].pos.X <= -120)
+                    rocks.RemoveAt(i);
+
+            //Det finns alltid 3 stenar, även om alla inte alltid är på bilden. När en ny sten skapas görs en Component.Add för den stenen.
+            while (rocks.Count < 3)
+            {
+                rocks.Add(new MarsRock(new Vector2(random.Next(1214, 3000), 270), this));
+                Components.Add(rocks[rocks.Count - 1]);
+            }
+
+            for (int i = 0; i < meteors.Count; i++)
+                if (meteors[i].pos.Y >= 398)
+                    meteors.RemoveAt(i);
+
+
+            while (meteors.Count < 3)
+            {
+                meteors.Add(new Meteor(new Vector2(random.Next(1714, 2000), random.Next(-600, -200)), this));
+                Components.Add(meteors[meteors.Count - 1]);
+            }
+
         }
     }
 }
