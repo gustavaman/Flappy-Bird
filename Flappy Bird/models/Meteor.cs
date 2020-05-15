@@ -29,7 +29,7 @@ namespace Flappy_Bird.models
             pos.X -= 7;
             pos.Y += 3;
 
-            rec = new Rectangle((int)pos.X, (int)pos.Y, 60, 60);
+            rec = new Rectangle((int)pos.X + 8, (int)pos.Y + 8, 44, 44);
 
             base.Update(gameTime);
         }
@@ -41,7 +41,7 @@ namespace Flappy_Bird.models
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(meteor, rec, Color.White);
+            spriteBatch.Draw(meteor, new Rectangle((int)pos.X, (int)pos.Y, 60, 60), Color.White);
         }
     }
 }

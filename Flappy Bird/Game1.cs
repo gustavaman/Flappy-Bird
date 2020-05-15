@@ -14,14 +14,13 @@ namespace Flappy_Bird
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Texture2D meteor, background, background2, hitbox;
+        Texture2D meteor, background, background2, hitbox, gameover;
         List<MarsRock> rocks;
         List<Meteor> meteors;
         CyberTruck player;
         Vector2 back_pos, back2_pos;
-        
+        bool isDead = false;
         Random random;
-
 
         public Game1()
         {
@@ -29,8 +28,6 @@ namespace Flappy_Bird
 
             graphics.PreferredBackBufferHeight = 396;
             graphics.PreferredBackBufferWidth = 1214;
-
-            random = new Random();
 
             Content.RootDirectory = "Content";
         }
@@ -40,11 +37,12 @@ namespace Flappy_Bird
             player = new CyberTruck(new Vector2(200, 290), 100, this);
             rocks = new List<MarsRock>();
             meteors = new List<Meteor>();
+            random = new Random();
             hitbox = new Texture2D(GraphicsDevice, 1, 1);
             hitbox.SetData(new Color[] { Color.Red });
             Components.Add(player);
-            base.Initialize();
 
+            base.Initialize();
         }
 
         protected override void LoadContent()
@@ -54,6 +52,7 @@ namespace Flappy_Bird
             meteor = Content.Load<Texture2D>("meteor");
             background = Content.Load<Texture2D>("bakgrund");
             background2 = Content.Load<Texture2D>("bakgrund2");
+            gameover = Content.Load<Texture2D>("gameover");
 
             back_pos = new Vector2(0, 0);
             back2_pos = new Vector2(background.Width, 0);
@@ -68,15 +67,11 @@ namespace Flappy_Bird
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // back2_pos.X + 1214 används eftersom det annars bildas ett svart streck i skarven mellan bakgrunderna. Strecket uppstår pga att bakgrundens hastighet inte är en faktor av dess bredd.
-            if (back_pos.X <= -background.Width)
-                back_pos.X = back2_pos.X + 1214;
+            //Rullande bakgrund
+            BackgroundLogic();
 
-            if (back2_pos.X <= -background.Width)
-                back2_pos.X = back_pos.X + 1214;
-
-            back_pos.X -= 6;
-            back2_pos.X -= 6;
+            //Kollisionslogik
+            CollisionLogic();
 
             //Metod som spawnar objekt c:
             ObjectSpawner();
@@ -89,13 +84,11 @@ namespace Flappy_Bird
             GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();
-
+                        
             spriteBatch.Draw(background, back_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
 
             spriteBatch.Draw(background2, back2_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
-            
-            player.Draw(spriteBatch);
-
+                        
             for (int i = 0; i < rocks.Count; i++)
             {
                 rocks[i].Draw(spriteBatch);
@@ -108,14 +101,41 @@ namespace Flappy_Bird
                 meteors[i].Draw(spriteBatch);
                 spriteBatch.Draw(hitbox, meteors[i].rec, Color.Red);
             }
-                
+
+            player.Draw(spriteBatch);
+            spriteBatch.Draw(hitbox, player.rec, Color.Red);
+
+            if (isDead)
+                spriteBatch.Draw(gameover, new Rectangle(0, 0, 1214, 396), Color.White);
 
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }        
+
+        public void BackgroundLogic()
+        {
+            // back2_pos.X + 1214 används eftersom det annars bildas ett svart streck i skarven mellan bakgrunderna. Strecket uppstår pga att bakgrundens hastighet inte är en faktor av dess bredd.
+            if (back_pos.X <= -background.Width)
+                back_pos.X = back2_pos.X + 1214;
+
+            if (back2_pos.X <= -background.Width)
+                back2_pos.X = back_pos.X + 1214;
+
+            back_pos.X -= 6;
+            back2_pos.X -= 6;
         }
 
+        public void CollisionLogic()
+        {
+            for (int i = 0; i < rocks.Count; i++)
+                if (player.rec.Intersects(rocks[i].rec))
+                    isDead = true;
 
+            for (int i = 0; i < meteors.Count; i++)
+                if (player.rec.Intersects(meteors[i].rec))
+                    isDead = true;
+        }
 
         public void ObjectSpawner()
         {

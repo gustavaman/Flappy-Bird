@@ -39,6 +39,7 @@ namespace Flappy_Bird.models
             
             if (Keyboard.GetState().IsKeyDown(Keys.Up) && isjump == false)
             {
+                //Hopphöjd
                 vel.Y = -7.5f;
                 isjump = true;
             }
@@ -62,7 +63,7 @@ namespace Flappy_Bird.models
                 isjump = false;
             }
 
-            rec = new Rectangle((int)pos.X, (int)pos.Y,120,120);
+            rec = new Rectangle((int)pos.X + 5, (int)pos.Y + 40, 110, 40);
 
             base.Update(gameTime);
         }
@@ -79,7 +80,7 @@ namespace Flappy_Bird.models
 
         public void Draw(SpriteBatch spritebatch)
         {
-            spritebatch.Draw(car, rec, Color.White);           
+            spritebatch.Draw(car, new Rectangle((int)pos.X, (int)pos.Y, 120, 120), Color.White);           
         }
     }
 }
