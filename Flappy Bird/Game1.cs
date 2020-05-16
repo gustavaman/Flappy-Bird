@@ -144,6 +144,18 @@ namespace Flappy_Bird
                 if (rocks[i].pos.X <= -120)
                     rocks.RemoveAt(i);
 
+            /*Stenar och meteorer kan inte spawna så att deras hitboxes överlappar.
+            Vi kan eventuellt skapa en större rektangel till varje objekt som inte är hitbox men som gör så att stenar och meteorer måste ha ett visst avstånd från varandra.*/
+            for (int i = 0; i < rocks.Count; i++)
+                for (int p = 0; p < rocks.Count; p++)
+                    if (i != p && rocks[i].rec.Intersects(rocks[p].rec))
+                        rocks.RemoveAt(p);
+
+            for (int i = 0; i < meteors.Count; i++)
+                for (int p = 0; p < meteors.Count; p++)
+                    if (i != p && meteors[i].rec.Intersects(meteors[p].rec))
+                        meteors.RemoveAt(p);
+
             //Det finns alltid 3 stenar, även om alla inte alltid är på bilden. När en ny sten skapas görs en Component.Add för den stenen.
             while (rocks.Count < 3)
             {
