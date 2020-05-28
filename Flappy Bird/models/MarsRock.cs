@@ -12,7 +12,7 @@ namespace Flappy_Bird.models
     {
         public Vector2 pos;
         Texture2D rock;
-        public Rectangle rec;
+        public Rectangle rec, spawnrec;
         public MarsRock(Vector2 pos, Game game): base(game)
         {
             rock = Game.Content.Load<Texture2D>("MarsRock");
@@ -30,6 +30,7 @@ namespace Flappy_Bird.models
            
 
             rec = new Rectangle((int)pos.X + 20, (int)pos.Y + 30, 80, 80);
+            spawnrec = new Rectangle((int)pos.X + 160, (int)pos.Y + 30, 360, 80);
 
             base.Update(gameTime);
         }

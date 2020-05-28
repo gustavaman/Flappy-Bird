@@ -31,7 +31,7 @@ namespace Flappy_Bird.Content
             pos.X += vel.X;
             pos.Y += vel.Y;
 
-            rec = new Rectangle((int)pos.X, (int)pos.Y, 44, 44);
+            rec = new Rectangle((int)pos.X + 28, (int)pos.Y + 25, 6, 6);
 
             base.Update(gameTime);
         }

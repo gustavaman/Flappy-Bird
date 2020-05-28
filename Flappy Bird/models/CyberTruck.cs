@@ -28,16 +28,16 @@ namespace Flappy_Bird.models
         public override void Update(GameTime gameTime)
         {
             //Om båda rörelsetangenterna är nedtryckta är hastigheten 0. Detta för att inte en tangent inte ska överskrida den andra.
-            if (Keyboard.GetState().IsKeyDown(Keys.Right) && Keyboard.GetState().IsKeyDown(Keys.Left))
+            if (Keyboard.GetState().IsKeyDown(Keys.D) && Keyboard.GetState().IsKeyDown(Keys.A))
                 vel.X = 0;
-            else if (Keyboard.GetState().IsKeyDown(Keys.Right) && pos.X < 1089)
-                vel.X = 7f;
-            else if (Keyboard.GetState().IsKeyDown(Keys.Left) && pos.X > 4)
-                vel.X = -7f;
+            else if (Keyboard.GetState().IsKeyDown(Keys.D) && pos.X < 1089)
+                vel.X = 7;
+            else if (Keyboard.GetState().IsKeyDown(Keys.A) && pos.X > 4)
+                vel.X = -7;
             else
-                vel.X = 0f;
+                vel.X = 0;
             
-            if (Keyboard.GetState().IsKeyDown(Keys.Up) && isjump == false)
+            if (Keyboard.GetState().IsKeyDown(Keys.W) && isjump == false)
             {
                 //Hopphöjd
                 vel.Y = -7.5f;

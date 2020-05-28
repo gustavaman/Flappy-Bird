@@ -11,11 +11,12 @@ namespace Flappy_Bird
     public class Game1 : Game
     {
         //Hej Johan
-        //hej Gustav
+        //Hej Gustav
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Texture2D  background, background2, hitbox, gameover;
+        Texture2D background, background2, hitbox, gameover;
+        SpriteFont font;
         List<MarsRock> rocks;
         List<Meteor> meteors;
         CyberTruck player;
@@ -24,7 +25,11 @@ namespace Flappy_Bird
         bool isDead = false;
         bool devMode = false;
         bool isPress = false;
+        bool isPress2 = false;
         bool isShooting = false;
+        bool godMode = false;
+        int maxmeteors = 2;
+        int score = 0;
         Random random;
         
 
@@ -48,6 +53,8 @@ namespace Flappy_Bird
             hitbox = new Texture2D(GraphicsDevice, 1, 1);
             hitbox.SetData(new Color[] { Color.Red });
             Components.Add(player);
+            IsMouseVisible = true;
+            Mouse.SetCursor(MouseCursor.Crosshair);
 
             base.Initialize();
         }
@@ -60,7 +67,7 @@ namespace Flappy_Bird
             background = Content.Load<Texture2D>("bakgrund");
             background2 = Content.Load<Texture2D>("bakgrund2");
             gameover = Content.Load<Texture2D>("gameover");
-            
+            font = Content.Load<SpriteFont>("score");
 
             back_pos = new Vector2(0, 0);
             back2_pos = new Vector2(background.Width, 0);
@@ -75,6 +82,13 @@ namespace Flappy_Bird
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            //Ju längre tid spelet pågår desto fler meteorer spawnas.
+            if (gameTime.TotalGameTime.Seconds > 15)
+            {
+                maxmeteors++;
+                gameTime.TotalGameTime = gameTime.TotalGameTime.Subtract(gameTime.TotalGameTime);
+            }
+
             //Rullande bakgrund
             BackgroundLogic();
 
@@ -87,13 +101,15 @@ namespace Flappy_Bird
             //Metod för omstart
             Restart();
 
-            //Metod för devMode
+            //Metod för att visa hitboxes
             DevMode();
+
+            //Metod för att vara odödlig
+            GodMode();
 
             base.Update(gameTime);
         }
 
-        
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
@@ -103,7 +119,7 @@ namespace Flappy_Bird
             spriteBatch.Draw(background, back_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
 
             spriteBatch.Draw(background2, back2_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
-                        
+
             for (int i = 0; i < bullets.Count; i++)
             {
                 bullets[i].Draw(spriteBatch);
@@ -127,11 +143,14 @@ namespace Flappy_Bird
             }
 
             player.Draw(spriteBatch);
+
             if (devMode)
                 spriteBatch.Draw(hitbox, player.rec, Color.Red);
 
             if (isDead)
                 spriteBatch.Draw(gameover, new Rectangle(0, 0, 1214, 396), Color.White);
+                       
+            spriteBatch.DrawString(font, "Score: " + score, new Vector2(10, 10), Color.White);
 
             spriteBatch.End();
 
@@ -153,13 +172,29 @@ namespace Flappy_Bird
 
         public void CollisionLogic()
         {
-            for (int i = 0; i < rocks.Count; i++)
-                if (player.rec.Intersects(rocks[i].rec))
-                    isDead = true;
+            if (!godMode)
+            {
+                for (int i = 0; i < rocks.Count; i++)
+                    if (player.rec.Intersects(rocks[i].rec))
+                        isDead = true;
 
-            for (int i = 0; i < meteors.Count; i++)
-                if (player.rec.Intersects(meteors[i].rec))
-                    isDead = true;
+                for (int i = 0; i < meteors.Count; i++)
+                    if (player.rec.Intersects(meteors[i].rec))
+                        isDead = true;
+            }
+
+            for (int i = 0; i < bullets.Count; i++)
+                for (int p = 0; p < meteors.Count; p++)
+                    if (bullets[i].rec.Intersects(meteors[p].rec) && !isDead)
+                    {
+                        meteors.RemoveAt(p);
+                        bullets.RemoveAt(i);
+                        score++;
+
+                        // Om man tar bort en bullet eller meteor och kör for-loopen igen för samma värde på en av dem kommer indexet inte att finnas längre.
+                        break;
+                    }
+
         }
 
         public void ObjectSpawner()
@@ -169,17 +204,21 @@ namespace Flappy_Bird
                 if (rocks[i].pos.X <= -120)
                     rocks.RemoveAt(i);
 
-            /*Stenar och meteorer kan inte spawna så att deras hitboxes överlappar.
-            Vi kan eventuellt skapa en större rektangel till varje objekt som inte är hitbox men som gör så att stenar och meteorer måste ha ett visst avstånd från varandra.*/
+            //Stenar och meteorer kan inte spawna nära varandra.
             for (int i = 0; i < rocks.Count; i++)
                 for (int p = 0; p < rocks.Count; p++)
-                    if (i != p && rocks[i].rec.Intersects(rocks[p].rec))
+                    if (i != p && rocks[i].spawnrec.Intersects(rocks[p].spawnrec))
                         rocks.RemoveAt(p);
 
             for (int i = 0; i < meteors.Count; i++)
                 for (int p = 0; p < meteors.Count; p++)
-                    if (i != p && meteors[i].rec.Intersects(meteors[p].rec))
+                    if (i != p && meteors[i].spawnrec.Intersects(meteors[p].spawnrec))
+                    {
                         meteors.RemoveAt(p);
+                        break;
+                    }
+
+
 
             //Det finns alltid 3 stenar, även om alla inte alltid är på bilden. När en ny sten skapas görs en Component.Add för den stenen.
             while (rocks.Count < 3)
@@ -189,26 +228,40 @@ namespace Flappy_Bird
             }
 
             for (int i = 0; i < meteors.Count; i++)
-                if (meteors[i].pos.Y >= 398)
+                if (meteors[i].pos.Y >= 396)
                     meteors.RemoveAt(i);
 
-
-            while (meteors.Count < 3)
+            //Samma logik för meteorer som för stenar.
+            while (meteors.Count < maxmeteors)
             {
                 meteors.Add(new Meteor(new Vector2(random.Next(1714, 2000), random.Next(-600, -200)), this));
                 Components.Add(meteors[meteors.Count - 1]);
             }
-            
-            //new Vector 2(4, 4) ska ändras beroende på var muspekaren är
-            //
-            //
-            //
-            //
-            //
-            //
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && bullets.Count < 3 && isShooting == false)
+
+            for (int i = 0; i < bullets.Count; i++)
+                if (bullets[i].pos.Y >= 396 || bullets[i].pos.Y <= -31 || bullets[i].pos.X <= -31 || bullets[i].pos.X >= 1214)
+                    bullets.RemoveAt(i);
+
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && bullets.Count < 3 && !isDead && !isShooting)
             {
-                bullets.Add(new Bullet(new Vector2(player.pos.X + 60, player.pos.Y), new Vector2(4, 4), this));
+                double bulletvel = 100;
+
+                /* Uträkningen av bullet.vel.X kan förenklat skrivas på följande vis, där m är musen, b är bullet och x och y anger vilken av dess koord
+                sqrt(bulletvel/((mus.pos.Y-bullet.pos.Y)/(mus.pos.X-bullet.pos.X)+1))
+                För att beräkna bullet.vel.Y multiplicerar man bullet.vel.X med (mus.pos.Y-bullet.pos.Y)/(mus.pos.X-bullet.pos.X)
+                På grund av att uträkningen är en andragradsekvation behövs ett fall då musen är till höger om bilen och ett där den är till vänster.
+                Det behövs även två fall då musens x-position är på samma pixel som bulletspawnern, ett då musen är över bilen och ett då musen är under bilen.
+                */
+
+                if (Mouse.GetState().X > (player.pos.X + 65))
+                    bullets.Add(new Bullet(new Vector2(player.pos.X + 35, player.pos.Y + 30), new Vector2((float)Math.Sqrt(bulletvel / (Math.Pow((Mouse.GetState().Y - (player.pos.Y + 57)) / (Mouse.GetState().X - (player.pos.X + 65)), 2) + 1)), (float)Math.Pow(bulletvel / (Math.Pow((Mouse.GetState().Y - (player.pos.Y + 57)) / (Mouse.GetState().X - (player.pos.X + 65)), 2) + 1), 0.5) * (Mouse.GetState().Y - (player.pos.Y + 57)) / (Mouse.GetState().X - (player.pos.X + 65))), this));
+                else if (Mouse.GetState().X < (player.pos.X + 65))
+                    bullets.Add(new Bullet(new Vector2(player.pos.X + 35, player.pos.Y + 30), new Vector2((float)-Math.Sqrt(bulletvel / (Math.Pow((Mouse.GetState().Y - (player.pos.Y + 57)) / (Mouse.GetState().X - (player.pos.X + 65)), 2) + 1)), (float)-Math.Pow(bulletvel / (Math.Pow((Mouse.GetState().Y - (player.pos.Y + 57)) / (Mouse.GetState().X - (player.pos.X + 65)), 2) + 1), 0.5) * (Mouse.GetState().Y - (player.pos.Y + 57)) / (Mouse.GetState().X - (player.pos.X + 65))), this));
+                else if (Mouse.GetState().Y < (player.pos.Y + 57))
+                    bullets.Add(new Bullet(new Vector2(player.pos.X + 35, player.pos.Y + 30), new Vector2(0, (float)-Math.Sqrt(bulletvel)), this));
+                else
+                    bullets.Add(new Bullet(new Vector2(player.pos.X + 35, player.pos.Y + 30), new Vector2(0, (float)Math.Sqrt(bulletvel)), this));
+
                 Components.Add(bullets[bullets.Count - 1]);
 
                 isShooting = true;
@@ -216,25 +269,24 @@ namespace Flappy_Bird
 
             if (Mouse.GetState().LeftButton == ButtonState.Released)
                 isShooting = false;
-
-            for (int i = 0; i < bullets.Count; i++)
-                if (bullets[i].pos.Y >= 398 || bullets[i].pos.Y < 0 || bullets[i].pos.X < 0 || bullets[i].pos.X > 1214)
-                    bullets.RemoveAt(i);
         }
 
         public void Restart()
         {
-            if (isDead == true && Keyboard.GetState().IsKeyDown(Keys.R))
+            if (isDead && Keyboard.GetState().IsKeyDown(Keys.R))
             {
                 rocks.Clear();
                 meteors.Clear();
+                bullets.Clear();
                 player.pos = new Vector2(200, 290);
+                score = 0;
                 isDead = false;
             }
         }
+
         private void DevMode()
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.B) && isPress == false)
+            if (Keyboard.GetState().IsKeyDown(Keys.B) && !isPress)
             {
                 if (!devMode)
                     devMode = true;
@@ -246,6 +298,22 @@ namespace Flappy_Bird
 
             if (Keyboard.GetState().IsKeyUp(Keys.B))
                 isPress = false;
+        }
+
+        private void GodMode()
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.G) && !isPress2)
+            {
+                if (!godMode)
+                    godMode = true;
+                else
+                    godMode = false;
+
+                isPress2 = true;
+            }
+
+            if (Keyboard.GetState().IsKeyUp(Keys.G))
+                isPress2 = false;
         }
     }
 }
