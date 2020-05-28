@@ -109,6 +109,7 @@ namespace Flappy_Bird
                 score = 0;
                 gameTime.TotalGameTime = gameTime.TotalGameTime.Subtract(gameTime.TotalGameTime);
                 maxmeteors = 2;
+                spawnrecsize = new Vector2(304, 140);
                 isDead = false;
             }
 
