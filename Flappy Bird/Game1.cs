@@ -1,4 +1,5 @@
-﻿using Flappy_Bird.models;
+﻿using Flappy_Bird.Content;
+using Flappy_Bird.models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -14,13 +15,15 @@ namespace Flappy_Bird
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Texture2D meteor, background, background2, hitbox, gameover;
+        Texture2D  background, background2, hitbox, gameover;
         List<MarsRock> rocks;
         List<Meteor> meteors;
         CyberTruck player;
+        List<Bullet> bullets;
         Vector2 back_pos, back2_pos;
         bool isDead = false;
         Random random;
+        
 
         public Game1()
         {
@@ -37,6 +40,7 @@ namespace Flappy_Bird
             player = new CyberTruck(new Vector2(200, 290), 100, this);
             rocks = new List<MarsRock>();
             meteors = new List<Meteor>();
+            bullets = new List<Bullet>();
             random = new Random();
             hitbox = new Texture2D(GraphicsDevice, 1, 1);
             hitbox.SetData(new Color[] { Color.Red });
@@ -49,10 +53,11 @@ namespace Flappy_Bird
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            meteor = Content.Load<Texture2D>("meteor");
+            
             background = Content.Load<Texture2D>("bakgrund");
             background2 = Content.Load<Texture2D>("bakgrund2");
             gameover = Content.Load<Texture2D>("gameover");
+            
 
             back_pos = new Vector2(0, 0);
             back2_pos = new Vector2(background.Width, 0);
