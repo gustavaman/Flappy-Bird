@@ -22,6 +22,9 @@ namespace Flappy_Bird
         List<Bullet> bullets;
         Vector2 back_pos, back2_pos;
         bool isDead = false;
+        bool devMode = false;
+        bool isPress = false;
+        bool isShooting = false;
         Random random;
         
 
@@ -81,9 +84,16 @@ namespace Flappy_Bird
             //Metod som spawnar objekt c:
             ObjectSpawner();
 
+            //Metod för omstart
+            Restart();
+
+            //Metod för devMode
+            DevMode();
+
             base.Update(gameTime);
         }
 
+        
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
@@ -94,21 +104,31 @@ namespace Flappy_Bird
 
             spriteBatch.Draw(background2, back2_pos, new Rectangle(0, 0, background.Width, background.Height), Color.White);
                         
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                bullets[i].Draw(spriteBatch);
+                if (devMode)
+                    spriteBatch.Draw(hitbox, bullets[i].rec, Color.Red);
+            }
+
             for (int i = 0; i < rocks.Count; i++)
             {
                 rocks[i].Draw(spriteBatch);
-                spriteBatch.Draw(hitbox, rocks[i].rec, Color.Red);
+                if (devMode)
+                    spriteBatch.Draw(hitbox, rocks[i].rec, Color.Red);
             }
                 
 
             for (int i = 0; i < meteors.Count; i++)
             {
                 meteors[i].Draw(spriteBatch);
-                spriteBatch.Draw(hitbox, meteors[i].rec, Color.Red);
+                if (devMode)
+                    spriteBatch.Draw(hitbox, meteors[i].rec, Color.Red);
             }
 
             player.Draw(spriteBatch);
-            spriteBatch.Draw(hitbox, player.rec, Color.Red);
+            if (devMode)
+                spriteBatch.Draw(hitbox, player.rec, Color.Red);
 
             if (isDead)
                 spriteBatch.Draw(gameover, new Rectangle(0, 0, 1214, 396), Color.White);
@@ -178,7 +198,54 @@ namespace Flappy_Bird
                 meteors.Add(new Meteor(new Vector2(random.Next(1714, 2000), random.Next(-600, -200)), this));
                 Components.Add(meteors[meteors.Count - 1]);
             }
+            
+            //new Vector 2(4, 4) ska ändras beroende på var muspekaren är
+            //
+            //
+            //
+            //
+            //
+            //
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && bullets.Count < 3 && isShooting == false)
+            {
+                bullets.Add(new Bullet(new Vector2(player.pos.X + 60, player.pos.Y), new Vector2(4, 4), this));
+                Components.Add(bullets[bullets.Count - 1]);
 
+                isShooting = true;
+            }
+
+            if (Mouse.GetState().LeftButton == ButtonState.Released)
+                isShooting = false;
+
+            for (int i = 0; i < bullets.Count; i++)
+                if (bullets[i].pos.Y >= 398 || bullets[i].pos.Y < 0 || bullets[i].pos.X < 0 || bullets[i].pos.X > 1214)
+                    bullets.RemoveAt(i);
+        }
+
+        public void Restart()
+        {
+            if (isDead == true && Keyboard.GetState().IsKeyDown(Keys.R))
+            {
+                rocks.Clear();
+                meteors.Clear();
+                player.pos = new Vector2(200, 290);
+                isDead = false;
+            }
+        }
+        private void DevMode()
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.B) && isPress == false)
+            {
+                if (!devMode)
+                    devMode = true;
+                else
+                    devMode = false;
+
+                isPress = true;
+            }
+
+            if (Keyboard.GetState().IsKeyUp(Keys.B))
+                isPress = false;
         }
     }
 }

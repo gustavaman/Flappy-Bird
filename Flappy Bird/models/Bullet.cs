@@ -20,6 +20,7 @@ namespace Flappy_Bird.Content
             bullet = Game.Content.Load<Texture2D>("bullet");
             this.pos = pos;
         }
+
         public override void Initialize()
         {
             base.Initialize();

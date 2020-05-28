@@ -11,7 +11,7 @@ namespace Flappy_Bird.models
 {
     class CyberTruck: DrawableGameComponent 
     {
-        Vector2 pos;
+        public Vector2 pos;
         Vector2 vel;
         public int hp;
         public bool isjump = false;
