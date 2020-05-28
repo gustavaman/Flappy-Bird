@@ -21,7 +21,7 @@ namespace Flappy_Bird
         List<Meteor> meteors;
         CyberTruck player;
         List<Bullet> bullets;
-        Vector2 back_pos, back2_pos;
+        Vector2 back_pos, back2_pos, spawnrecsize;
         bool isDead = false;
         bool devMode = false;
         bool isPress = false;
@@ -54,6 +54,7 @@ namespace Flappy_Bird
             hitbox.SetData(new Color[] { Color.Red });
             Components.Add(player);
             IsMouseVisible = true;
+            spawnrecsize = new Vector2(304, 140);
             Mouse.SetCursor(MouseCursor.Crosshair);
 
             base.Initialize();
@@ -99,7 +100,17 @@ namespace Flappy_Bird
             ObjectSpawner();
 
             //Metod för omstart
-            Restart();
+            if (isDead && Keyboard.GetState().IsKeyDown(Keys.R))
+            {
+                rocks.Clear();
+                meteors.Clear();
+                bullets.Clear();
+                player.pos = new Vector2(200, 290);
+                score = 0;
+                gameTime.TotalGameTime = gameTime.TotalGameTime.Subtract(gameTime.TotalGameTime);
+                maxmeteors = 2;
+                isDead = false;
+            }
 
             //Metod för att visa hitboxes
             DevMode();
@@ -133,8 +144,7 @@ namespace Flappy_Bird
                 if (devMode)
                     spriteBatch.Draw(hitbox, rocks[i].rec, Color.Red);
             }
-                
-
+            
             for (int i = 0; i < meteors.Count; i++)
             {
                 meteors[i].Draw(spriteBatch);
@@ -199,6 +209,10 @@ namespace Flappy_Bird
 
         public void ObjectSpawner()
         {
+            //Det tillåtna avståndet mellan meteorer minskar med tiden. Detta då de annars inte hade spawnat alls när det är många meteorer i spelet.
+            spawnrecsize.X -= 0.04f;
+            spawnrecsize.Y -= 0.02f;
+
             //Tar bort stenar när de hamnat utanför bild till vänster.
             for (int i = 0; i < rocks.Count; i++)
                 if (rocks[i].pos.X <= -120)
@@ -217,9 +231,7 @@ namespace Flappy_Bird
                         meteors.RemoveAt(p);
                         break;
                     }
-
-
-
+            
             //Det finns alltid 3 stenar, även om alla inte alltid är på bilden. När en ny sten skapas görs en Component.Add för den stenen.
             while (rocks.Count < 3)
             {
@@ -228,13 +240,13 @@ namespace Flappy_Bird
             }
 
             for (int i = 0; i < meteors.Count; i++)
-                if (meteors[i].pos.Y >= 396)
+                if (meteors[i].pos.Y >= 396 || meteors[i].pos.X <= -60)
                     meteors.RemoveAt(i);
 
             //Samma logik för meteorer som för stenar.
             while (meteors.Count < maxmeteors)
             {
-                meteors.Add(new Meteor(new Vector2(random.Next(1714, 2000), random.Next(-600, -200)), this));
+                meteors.Add(new Meteor(new Vector2(random.Next(1714, 2000), random.Next(-600, -200)), spawnrecsize, this));
                 Components.Add(meteors[meteors.Count - 1]);
             }
 
@@ -269,19 +281,6 @@ namespace Flappy_Bird
 
             if (Mouse.GetState().LeftButton == ButtonState.Released)
                 isShooting = false;
-        }
-
-        public void Restart()
-        {
-            if (isDead && Keyboard.GetState().IsKeyDown(Keys.R))
-            {
-                rocks.Clear();
-                meteors.Clear();
-                bullets.Clear();
-                player.pos = new Vector2(200, 290);
-                score = 0;
-                isDead = false;
-            }
         }
 
         private void DevMode()

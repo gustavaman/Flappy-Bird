@@ -10,17 +10,18 @@ namespace Flappy_Bird.models
 {
     internal class Meteor : DrawableGameComponent
     {
-        public Vector2 pos;
+        public Vector2 pos, spawnrecsize;
         Texture2D meteor;
         public Rectangle rec, spawnrec;
-        public Meteor(Vector2 pos, Game game) : base(game)
+        public Meteor(Vector2 pos, Vector2 spawnrecsize, Game game) : base(game)
         {
+            this.spawnrecsize = spawnrecsize;
             meteor = Game.Content.Load<Texture2D>("meteor");
             this.pos = pos;
         }
 
         public override void Initialize()
-        {
+        {                        
             base.Initialize();
         }
 
@@ -30,7 +31,7 @@ namespace Flappy_Bird.models
             pos.Y += 3;
 
             rec = new Rectangle((int)pos.X + 8, (int)pos.Y + 8, 44, 44);
-            spawnrec = new Rectangle((int)pos.X + 160, (int)pos.Y + 78, 348, 184);
+            spawnrec = new Rectangle((int)pos.X + 8 - (int)spawnrecsize.X / 2, (int)pos.Y + 8 - (int)spawnrecsize.Y / 2, 44 + (int)spawnrecsize.X, 44 + (int)spawnrecsize.Y);
 
             base.Update(gameTime);
         }

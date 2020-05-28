@@ -27,10 +27,9 @@ namespace Flappy_Bird.models
         public override void Update(GameTime gameTime)
         {
             pos.X -= 6;
-           
 
             rec = new Rectangle((int)pos.X + 20, (int)pos.Y + 30, 80, 80);
-            spawnrec = new Rectangle((int)pos.X + 160, (int)pos.Y + 30, 360, 80);
+            spawnrec = new Rectangle((int)pos.X - 140, (int)pos.Y, 400, 1);
 
             base.Update(gameTime);
         }
